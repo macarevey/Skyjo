@@ -47,6 +47,9 @@ public class Hand {
 	}
 	
 	public void cardClicked(Card c) { // do stuff based off game state, and card clicked
+		if (isMyTurn) {
+			return;
+		}
 		return;
 	}
 	

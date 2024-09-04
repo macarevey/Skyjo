@@ -6,16 +6,25 @@ import javax.swing.JFrame;
 public class DisplayCards extends JFrame {
 	private static final int WIDTH = 2000;
 	private static final int HEIGHT = 1000;
-	private Card[][] cards;
+	//private Card[][] cards;
+	private Hand[] hands;
+	private MouseListenerPanel m;
+	private Deck deck;
+	private Discard discard;
 	
-	public DisplayCards(String title) {
+	public DisplayCards(String title, Hand[] h, Deck d, Discard disc) {
 		super(title);
 		
-		setSize(WIDTH, HEIGHT);
+		hands = h;
+		deck = d;
+		discard = disc;
+		
+		//setSize(WIDTH, HEIGHT);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		MouseListenerPanel m = new MouseListenerPanel();
+		m = new MouseListenerPanel(hands, deck, discard);
 		add(m);
+		setExtendedState(JFrame.MAXIMIZED_BOTH); 
 		setVisible(true);
 	}
 }
