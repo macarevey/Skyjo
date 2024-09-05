@@ -20,7 +20,7 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
 		ellipseW = frameWidth - frameWidth / 8;
 		ellipseH = frameHeight - frameHeight / 8;
 		
-		int count = 90;
+		int count = 270;
 		for (int i = 0; i < hands.size(); i++) {
 			if (hands.get(i).getIsPlayer()) {
 				hands.get(i).calculateCoords(count, ellipseW/2, ellipseH/2);
