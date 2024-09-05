@@ -15,10 +15,9 @@ public class GameRunner {
 				hands.add(new Hand(hand, false, 0, 0));
 			}
 		}
-		Hand[] h = (Hand[])(hands.toArray());
 		Discard discard = new Discard(deck.getCards(1).get(0));
 		
-		DisplayCards display = new DisplayCards("Skyjo Game", h, deck, discard);
+		DisplayCards display = new DisplayCards("Skyjo Game", hands, deck, discard, players);
 	}
 	
 	public static void main(String[] args) {

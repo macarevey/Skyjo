@@ -3,7 +3,7 @@ import java.util.ArrayList;
 public class Hand {
 	private ArrayList<Card> hand;
 	private boolean isPlayer;
-	private int x,y;
+	private double x,y;
 	private String gameState;
 	private boolean isMyTurn;
 	
@@ -29,7 +29,7 @@ public class Hand {
 		return check;
 	}
 	
-	public void checkColumns() {
+	public void checkColumns() { // Not Finished
 		int columnNum = hand.size() / 3;
 		
 		Card[][] h = new Card[3][4];
@@ -55,5 +55,17 @@ public class Hand {
 	
 	public void updateGameState(String gs) {
 		gameState = gs;
+	}
+	
+	public void calculateCoords(double angle, double horizontalRadius, double verticalRadius) {
+		System.out.println(angle + ", " + horizontalRadius + ", " + verticalRadius);
+		double t = Math.toRadians(angle);
+		x = horizontalRadius * Math.cos(t);
+		y = verticalRadius * Math.sin(t);
+		System.out.println("Casted angle " + angle + " to coords (" + x + ", " + y + ")");
+	}
+	
+	public boolean getIsPlayer() {
+		return isPlayer;
 	}
 }

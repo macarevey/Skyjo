@@ -7,23 +7,28 @@ public class DisplayCards extends JFrame {
 	private static final int WIDTH = 2000;
 	private static final int HEIGHT = 1000;
 	//private Card[][] cards;
-	private Hand[] hands;
+	private ArrayList<Hand> hands;
 	private MouseListenerPanel m;
 	private Deck deck;
 	private Discard discard;
 	
-	public DisplayCards(String title, Hand[] h, Deck d, Discard disc) {
+	public DisplayCards(String title, ArrayList<Hand> h, Deck d, Discard disc, int playerNum) {
 		super(title);
 		
 		hands = h;
 		deck = d;
 		discard = disc;
 		
+		//Ellipse magic
+		setSize(1800, 900);
+		setExtendedState(JFrame.MAXIMIZED_BOTH);
+		
 		//setSize(WIDTH, HEIGHT);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		m = new MouseListenerPanel(hands, deck, discard);
+		m = new MouseListenerPanel(hands, deck, discard, playerNum);
 		add(m);
+		//setSize(1800, 900);
 		setExtendedState(JFrame.MAXIMIZED_BOTH); 
 		setVisible(true);
 	}
