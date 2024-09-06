@@ -10,6 +10,8 @@ public class Card extends JPanel {
 	private boolean onBack;
 	private int x;
 	private int y;
+	private int height;
+	private int width;
 	
 	public Card(int n) {
 		number = n;
@@ -26,16 +28,6 @@ public class Card extends JPanel {
 		x = xx;
 		y = yy;
 	}
-	
-	//public void paint(Graphics g) {
-	//	System.out.println("Painting");
-	//	super.paint(g);
-	//	if (!onBack) {
-	//		g.drawImage(back, x, y, 50, 100, null);
-	//	} else {
-	//		g.drawImage(image, x, y, 50, 100, null);
-	//	}
-	//}
 	
 	public int getX() {
 		return x;
@@ -63,5 +55,21 @@ public class Card extends JPanel {
 	
 	public BufferedImage getImage() {
 		return image;
+	}
+	
+	public void setWidth(int w) {
+		width = w;
+	}
+	
+	public void setHeight(int h) {
+		height = h;
+	}
+	
+	public int getWidth() {
+		return width;
+	}
+	
+	public int getHeight() {
+		return height;
 	}
 }

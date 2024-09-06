@@ -2,7 +2,7 @@ import java.util.ArrayList;
 
 public class GameRunner {
 	public static void newRound() {
-		int players = 2;
+		int players = 8;
 		ArrayList<Hand> hands = new ArrayList<Hand>();
 		Deck deck = new Deck();
 		deck.shuffleDeck();
