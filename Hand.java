@@ -65,7 +65,7 @@ public class Hand {
         y = verticalRadius * Math.sin(theta) + yCenter;
 
         // Set card size based purely on screen size
-        double cardWidth = screenWidth / 35.0; // Adjust the divisor to change overall card size
+        double cardWidth = screenWidth / 35.0;
         double cardHeight = screenHeight / 15.0;
 
         // Add spacing between the cards
@@ -73,8 +73,8 @@ public class Hand {
         double cardSpacingY = cardHeight * 0.2; // 20% of card height as spacing
 
         // Calculate the total width and height of the grid layout
-        double handWidth = (cardWidth + cardSpacingX) * 4;  // 4 cards horizontally with spacing
-        double handHeight = (cardHeight + cardSpacingY) * 3; // 3 cards vertically with spacing
+        double handWidth = (cardWidth + cardSpacingX) * (hand.size() / 3);  // 4 cards horizontally with spacing
+        double handHeight = (cardHeight + cardSpacingY) * (hand.size() / 4); // 3 cards vertically with spacing
 
         // Adjust the hand coordinates to center the grid of cards
         x -= handWidth / 2;
@@ -110,5 +110,37 @@ public class Hand {
 	
 	public ArrayList<Card> getHand() {
 		return hand;
+	}
+	
+	public int getWidth() {
+		int cardWidth = hand.get(0).getWidth();
+		double cardSpacing = cardWidth * 0.2;
+		double width = 0;
+		for (int i = 0; i < 4; i++) {
+			if (i != 3) {
+				width += (cardWidth + cardSpacing);
+			} else {
+				width += cardWidth;
+			}
+		}
+		//System.out.println("Card size: " + hand.get(0).getWidth());
+		//System.out.println(width);
+		return (int)width;
+	}
+	
+	public int getHeight() {
+		int cardHeight = hand.get(0).getHeight();
+		double cardSpacing = cardHeight * 0.2;
+		double height = 0;
+		for (int i = 0; i < 4; i++) {
+			if (i != 3) {
+				height += (cardHeight + cardSpacing);
+			} else {
+				height += cardHeight;
+			}
+		}
+		//System.out.println("Card size: " + hand.get(0).getWidth());
+		//System.out.println(width);
+		return (int)height;
 	}
 }

@@ -39,6 +39,8 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
 	            count -= 360;
 	        }
 	    }
+	    deck.calculateCoords(frameWidth, frameHeight, xCenter, yCenter);
+	    discard.calculateCoords(frameWidth, frameHeight, xCenter, yCenter);
 	}
 	
 	public MouseListenerPanel(ArrayList<Hand> h, Deck d, Discard disc, int p) {
@@ -55,8 +57,9 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
 		double x = (getWidth() - ellipseW) / 2;
 		double y = (getHeight() - ellipseH) / 2;
 		g.setColor(Color.blue);
-		//g.drawOval((int)x, (int)y, (int)ellipseW, (int)ellipseH);
+		g.drawOval((int)x, (int)y, (int)ellipseW, (int)ellipseH);
 		
+		// Drawing hands
 		for (Hand h : hands) {
 			//h.checkColumns();
 			if (h.getIsPlayer()) {
@@ -67,17 +70,68 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
 			
 			for (Card c : h.getHand()) {
 				//System.out.println("x: " + c.getX() + ", y: " + c.getY() + ", width: " + c.getWidth() + ", height: " + c.getHeight());
-				g.drawImage(c.getImage(), c.getX(), c.getY(), c.getWidth(), c.getHeight(), null);
+				if (c.isOnBack()) {
+					g.drawImage(c.getBack(), c.getX(), c.getY(), c.getWidth(), c.getHeight(), null);
+				} else {
+					g.drawImage(c.getImage(), c.getX(), c.getY(), c.getWidth(), c.getHeight(), null);
+				}
 			}
 		}
 		
-		//g.drawString("Player", (int)hands.get(0).getX(), (int)hands.get(0).getY());
-		//g.drawString("Bot", (int)hands.get(1).getX(), (int)hands.get(1).getY());
+		// Drawing deck, discard piles
+		int deckSize = deck.getDeck().size();
+		int discardSize = discard.getPile().size();
+		Card deckCard = deck.getDeck().get(deckSize-1);
+		Card discardCard = discard.getPile().get(discardSize-1);
+		
+		if (discardCard.isOnBack()) {
+			g.drawImage(discardCard.getBack(), discard.getX(), discard.getY(), discardCard.getWidth(), discardCard.getHeight(), null);
+		} else {
+			g.drawImage(discardCard.getImage(), discard.getX(), discard.getY(), discardCard.getWidth(), discardCard.getHeight(), null);
+		}
+		
+		if (deckCard.isOnBack()) {
+			g.drawImage(deckCard.getBack(), deck.getX(), deck.getY(), deckCard.getWidth(), deckCard.getHeight(), null);
+		} else {
+			g.drawImage(deckCard.getImage(), deck.getX(), deck.getY(), deckCard.getWidth(), deckCard.getHeight(), null);
+		}
+		
+        g.drawString(".", getWidth()/2, getHeight()/2);
 	}
 	
 	public void mousePressed(MouseEvent e) {}
     public void mouseReleased(MouseEvent e) {}
     public void mouseEntered(MouseEvent e) {}
     public void mouseExited(MouseEvent e) {}
-    public void mouseClicked(MouseEvent e) {System.out.println("Click");}
+    public void mouseClicked(MouseEvent e) {
+    	int x = e.getX();
+    	int y = e.getY();
+    	//System.out.println("Clicked (" + x + ", " + y + ")");
+    	int deckSize = deck.getDeck().size();
+    	Card deckCard = deck.getDeck().get(deckSize-1);
+    	if (x >= deck.getX() && x <= (deckCard.getWidth() + deck.getX()) && y >= deck.getY() && y <= (deckCard.getHeight() + deck.getY())) {
+    		System.out.println("Clicked on the deck, card is " +  deckCard.getNum());
+    	}
+    	
+    	int discardSize = discard.getPile().size();
+    	Card discardCard = discard.getPile().get(discardSize-1);
+    	if (x >= discard.getX() && x <= (discardCard.getWidth() + discard.getX()) && y >= discard.getY() && y <= (discardCard.getHeight() + discard.getY())) {
+    		System.out.println("Clicked on the discard pile, card is " +  discardCard.getNum());
+    	}
+    	
+    	int hand = 1;    	
+    	for (Hand h : hands) {
+    		//System.out.println("Hands (x,y): (" + h.getX() + ", " + h.getY() + ") Hand's width,height: " + h.getWidth() + ", " + h.getHeight());
+    		if (x >= h.getX() && x <= (h.getWidth() + h.getX()) && y >= h.getY() && y <= (h.getHeight() + h.getY())) {
+    			//System.out.println("Found hand " + hand);
+    			for (Card c : h.getHand()) {
+    				if (x >= c.getX() && x <= (c.getWidth() + c.getX()) && y >= c.getY() && y <= (c.getHeight() + c.getY())) {
+    					System.out.println("Clicked on card " + c.getNum() + " in hand " + hand);
+    					break;
+    				}
+    			}
+    		}
+    		hand++;
+    	}
+    }
 }
