@@ -14,6 +14,20 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
 	private double ellipseW, ellipseH;
 	private int players;
 	
+	// Game state
+	private int playerTurn;
+	private String gameState;
+	private Card deckCardPulled;
+	
+	// Game state Methods
+	public void switchTurn() {
+		playerTurn++;
+		if (playerTurn > players) {
+			playerTurn = 0;
+		}
+	}
+	
+	// Math for hands position
 	public void doEllipse() {
 	    int frameWidth = getWidth();
 	    int frameHeight = getHeight();
@@ -49,6 +63,8 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
 		deck = d;
 		discard = disc;
 		players = p;
+		playerTurn = 1;
+		gameState = "Normal";
 		doEllipse();
 	}
 	
@@ -96,6 +112,10 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
 			g.drawImage(deckCard.getImage(), deck.getX(), deck.getY(), deckCard.getWidth(), deckCard.getHeight(), null);
 		}
 		
+		if (deckCardPulled != null) {
+			g.drawImage(deckCardPulled.getImage(), deckCardPulled.getX(), deckCardPulled.getY(), deckCardPulled.getWidth(), deckCardPulled.getHeight(), null);
+		}
+		
         g.drawString(".", getWidth()/2, getHeight()/2);
 	}
 	
@@ -106,32 +126,67 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
     public void mouseClicked(MouseEvent e) {
     	int x = e.getX();
     	int y = e.getY();
-    	//System.out.println("Clicked (" + x + ", " + y + ")");
-    	int deckSize = deck.getDeck().size();
-    	Card deckCard = deck.getDeck().get(deckSize-1);
-    	if (x >= deck.getX() && x <= (deckCard.getWidth() + deck.getX()) && y >= deck.getY() && y <= (deckCard.getHeight() + deck.getY())) {
-    		System.out.println("Clicked on the deck, card is " +  deckCard.getNum());
+
+    	if (gameState == "Normal") {
+	    	int deckSize = deck.getDeck().size();
+	    	Card deckCard = deck.getDeck().get(deckSize-1);
+	    	if (x >= deck.getX() && x <= (deckCard.getWidth() + deck.getX()) && y >= deck.getY() && y <= (deckCard.getHeight() + deck.getY())) {
+	    		//System.out.println("Clicked on the deck, card is " +  deckCard.getNum());
+	    		gameState = "Deck";
+	    		Card cardPulled = deck.getCards(1).get(0);
+	    		cardPulled.setCoords(deckCard.getX(), deckCard.getY()+deckCard.getHeight()+5);
+	    		deckCardPulled = cardPulled;
+	    	}
+	    	
+	    	int discardSize = discard.getPile().size();
+	    	Card discardCard = discard.getPile().get(discardSize-1);
+	    	if (x >= discard.getX() && x <= (discardCard.getWidth() + discard.getX()) && y >= discard.getY() && y <= (discardCard.getHeight() + discard.getY())) {
+	    		System.out.println("Clicked on the discard pile, card is " +  discardCard.getNum());
+	    		gameState = "Discard";
+	    	}
+	    	
+	    	int hand = 1;    	
+	    	for (Hand h : hands) {
+	    		//System.out.println("Hands (x,y): (" + h.getX() + ", " + h.getY() + ") Hand's width,height: " + h.getWidth() + ", " + h.getHeight());
+	    		if (x >= h.getX() && x <= (h.getWidth() + h.getX()) && y >= h.getY() && y <= (h.getHeight() + h.getY())) {
+	    			//System.out.println("Found hand " + hand);
+	    			for (Card c : h.getHand()) {
+	    				if (x >= c.getX() && x <= (c.getWidth() + c.getX()) && y >= c.getY() && y <= (c.getHeight() + c.getY())) {
+	    					System.out.println("Clicked on card " + c.getNum() + " in hand " + hand);
+	    					c.flipCard();
+	    					gameState = "Normal";
+	    				}
+	    			}
+	    		}
+	    		hand++;
+	    	}
+    	} else if (gameState == "Deck") {
+    		int deckSize = deck.getDeck().size();
+	    	Card deckCard = deck.getDeck().get(deckSize-1);
+	    	
+	    	if (x >= deck.getX() && x <= (deckCard.getWidth() + deck.getX()) && y >= deck.getY() && y <= (deckCard.getHeight() + deck.getY())) {
+	    		deckCardPulled.setCoords(deckCard.getX(), deckCard.getY());
+	    		deck.addCard(deckCardPulled);
+	    		gameState = "Normal";
+	    		deckCardPulled = null;
+	    	}
+	    	
+	    	if (gameState != "Normal") { // Check if the code above did not fire
+	    		for (Hand h : hands) {
+		    		if (x >= h.getX() && x <= (h.getWidth() + h.getX()) && y >= h.getY() && y <= (h.getHeight() + h.getY())) {
+		    			for (Card c : h.getHand()) {
+		    				if (x >= c.getX() && x <= (c.getWidth() + c.getX()) && y >= c.getY() && y <= (c.getHeight() + c.getY())) {
+		    					h.replaceCard(c, deckCardPulled);
+		    					discard.addCard(c);
+		    					gameState = "Normal";
+		    					deckCardPulled = null;
+		    				}
+		    			}
+		    		}
+		    	}
+	    	}
     	}
-    	
-    	int discardSize = discard.getPile().size();
-    	Card discardCard = discard.getPile().get(discardSize-1);
-    	if (x >= discard.getX() && x <= (discardCard.getWidth() + discard.getX()) && y >= discard.getY() && y <= (discardCard.getHeight() + discard.getY())) {
-    		System.out.println("Clicked on the discard pile, card is " +  discardCard.getNum());
-    	}
-    	
-    	int hand = 1;    	
-    	for (Hand h : hands) {
-    		//System.out.println("Hands (x,y): (" + h.getX() + ", " + h.getY() + ") Hand's width,height: " + h.getWidth() + ", " + h.getHeight());
-    		if (x >= h.getX() && x <= (h.getWidth() + h.getX()) && y >= h.getY() && y <= (h.getHeight() + h.getY())) {
-    			//System.out.println("Found hand " + hand);
-    			for (Card c : h.getHand()) {
-    				if (x >= c.getX() && x <= (c.getWidth() + c.getX()) && y >= c.getY() && y <= (c.getHeight() + c.getY())) {
-    					System.out.println("Clicked on card " + c.getNum() + " in hand " + hand);
-    					break;
-    				}
-    			}
-    		}
-    		hand++;
-    	}
+
+    	repaint();
     }
 }

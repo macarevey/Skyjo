@@ -17,7 +17,10 @@ public class Discard {
 	}
 	
 	public void addCard(Card c) {
-		c.flipCard();
+		if (c.isOnBack()) {
+			c.flipCard();
+		}
+		c.setCoords(x, y);
 		discardPile.add(c);
 	}
 	

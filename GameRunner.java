@@ -9,9 +9,9 @@ public class GameRunner {
 		
 		for (int i = 0; i < players; i++) {
 			ArrayList<Card> hand = deck.getCards(12);
-			for (Card c : hand) {
-				c.flipCard();
-			}
+			//for (Card c : hand) {
+			//	c.flipCard();
+			//}
 			if (i == 0) {
 				hands.add(new Hand(hand, true, 0, 0));
 			} else {
@@ -25,13 +25,11 @@ public class GameRunner {
 	}
 	
 	public static void main(String[] args) {
-		boolean createNewRound = true;
-		DisplayCards display;
-		while (true) {
-			if (createNewRound) {
-				display = newRound();
-				createNewRound = false;
-			}
+		//boolean createNewRound = false;
+		DisplayCards display = newRound();
+		MouseListenerPanel m = display.getMouseListener();
+		while (m != null) {
+			continue;
 		}
 	}
 }

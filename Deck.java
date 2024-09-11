@@ -30,11 +30,14 @@ public class Deck {
 	
 	public ArrayList<Card> getCards(int amt) {
 		ArrayList<Card> cards = new ArrayList<Card>();
-		for (int i = 0; i < amt; i++) { // add to return list
+		int first = deck.size() - amt - 1;
+		int last = deck.size() - 1;
+		
+		for (int i = last; i > first; i--) { // add to return list
 			cards.add(deck.get(i));
 		}
 		
-		for (int i = amt-1; i > -1; i--) { // remove cards taken
+		for (int i = last; i > first; i--) { // remove cards taken
 			deck.remove(i);
 		}
 		
@@ -77,5 +80,9 @@ public class Deck {
 	
 	public int getY() {
 		return y;
+	}
+	
+	public void addCard(Card c) {
+		deck.add(c);
 	}
 }

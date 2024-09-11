@@ -143,4 +143,15 @@ public class Hand {
 		//System.out.println(width);
 		return (int)height;
 	}
+	
+	public void replaceCard(Card c, Card newCard) {
+		for (int i = 0; i < hand.size(); i++) {
+			Card card = hand.get(i);
+			if (c.getNum() == card.getNum() && c.getX() == card.getX() && c.getY() == card.getY()) {
+				//System.out.println("Found the card, replacing (" + c.getNum() + ")");
+				newCard.setCoords(card.getX(), card.getY());
+				hand.set(i, newCard);
+			}
+		}
+	}
 }
