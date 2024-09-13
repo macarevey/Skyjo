@@ -150,8 +150,17 @@ public class Hand {
 			if (c.getNum() == card.getNum() && c.getX() == card.getX() && c.getY() == card.getY()) {
 				//System.out.println("Found the card, replacing (" + c.getNum() + ")");
 				newCard.setCoords(card.getX(), card.getY());
+				newCard.flipCard();
 				hand.set(i, newCard);
 			}
 		}
+	}
+	
+	public int getValue() {
+		int v = 0;
+		for (Card c : hand) {
+			v += c.getNum();
+		}
+		return v;
 	}
 }

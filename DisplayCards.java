@@ -14,7 +14,7 @@ public class DisplayCards extends JFrame {
 	
 	private MouseListenerPanel m;
 	
-	public DisplayCards(String title, ArrayList<Hand> h, Deck d, Discard disc, int p) {
+	public DisplayCards(String title, ArrayList<Hand> h, Deck d, Discard disc, int p, ArrayList<Integer> s) {
 		super(title);
 		
 		hands = h;
@@ -28,7 +28,7 @@ public class DisplayCards extends JFrame {
 		//setSize(WIDTH, HEIGHT);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		m = new MouseListenerPanel(hands, deck, discard, playerNum);
+		m = new MouseListenerPanel(hands, deck, discard, playerNum, s);
 		add(m);
 		//setSize(1800, 900);
 		setExtendedState(JFrame.MAXIMIZED_BOTH); 

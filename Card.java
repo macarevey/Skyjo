@@ -15,7 +15,7 @@ public class Card extends JPanel {
 	
 	public Card(int n) {
 		number = n;
-		onBack = false;
+		onBack = true;
 		try {
 			image = ImageIO.read(Card.class.getResource("/Images/" + n + ".png"));
 			back = ImageIO.read(Card.class.getResource("/Images/Back.png"));

@@ -1,8 +1,10 @@
 import java.util.ArrayList;
 
 public class GameRunner {
+	private static ArrayList<Integer> scores;
+	private static int players;
+	
 	public static DisplayCards newRound() {
-		int players = 5;
 		ArrayList<Hand> hands = new ArrayList<Hand>();
 		Deck deck = new Deck();
 		deck.shuffleDeck();
@@ -18,18 +20,32 @@ public class GameRunner {
 				hands.add(new Hand(hand, false, 0, 0));
 			}
 		}
+		
+		for (Hand h : hands) {
+			scores.add(h.getValue());
+		}
 		Discard discard = new Discard(deck.getCards(1).get(0));
 		
-		DisplayCards display = new DisplayCards("Skyjo Game", hands, deck, discard, players);
+		DisplayCards display = new DisplayCards("Skyjo Game", hands, deck, discard, players, scores);
 		return display;
 	}
 	
 	public static void main(String[] args) {
-		//boolean createNewRound = false;
+		players = 5;
+		scores = new ArrayList<Integer>();
+		
 		DisplayCards display = newRound();
 		MouseListenerPanel m = display.getMouseListener();
 		while (m != null) {
-			continue;
+			if (m.startNewRound()) {
+				ArrayList<Integer> newScores = m.calcScores();
+				for (int score : newScores) {
+					scores.add(score);
+				}
+				
+				display = newRound();
+				m = display.getMouseListener();
+			}
 		}
 	}
 }
