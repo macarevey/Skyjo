@@ -31,7 +31,7 @@ public class GameRunner {
 	}
 	
 	public static void main(String[] args) {
-		players = 5;
+		players = 3;
 		scores = new ArrayList<Integer>();
 		
 		DisplayCards display = newRound();

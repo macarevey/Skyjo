@@ -17,6 +17,21 @@ public class Hand {
 		} else {
 			isMyTurn = false;
 		}
+		
+		// For flipping two random cards
+		
+		int c1 = (int)(Math.random() * hand.size());
+		int c2 = 0;
+		boolean hasCardTwo = false;
+		while (!hasCardTwo) {
+			c2 = (int)(Math.random() * hand.size());
+			if (c2 != c1) {
+				hasCardTwo = true;
+			}
+		}
+		
+		hand.get(c1).flipCard();
+		hand.get(c2).flipCard();
 	}
 	
 	public boolean allFlipped() {
@@ -29,20 +44,35 @@ public class Hand {
 		return check;
 	}
 	
-	public void checkColumns() { // Doesnt work
-		for (int col = 0; col < 4; col++) {
-            // Get the card numbers in the column (row 0, row 1, row 2)
-            int firstCardNum = hand.get(col).getNum();
-            int secondCardNum = hand.get(col + 4).getNum();
-            int thirdCardNum = hand.get(col + 8).getNum();
-            
-            if (firstCardNum == secondCardNum && secondCardNum == thirdCardNum) {
-                hand.remove(col + 8);
-                hand.remove(col + 4);
-                hand.remove(col);
-                System.out.println("Removed all cards in column " + col + " (number " + firstCardNum + ")");
-            }
-        }
+	public void checkColumns() {
+	    boolean noMatches = false;
+	    
+	    while (!noMatches) {
+	    	int numColumns = hand.size() / 3;
+		    int numRows = hand.size() / numColumns;
+		    for (int col = 0; col < numColumns; col++) {
+		    	Card firstCard = hand.get(col * numRows); // First row in the column
+		        Card secondCard = hand.get(col * numRows + 1); // Second row in the column
+		        Card thirdCard = hand.get(col * numRows + 2); // Third row in the column
+		        
+		        //System.out.println("Checking " + firstCard.getNum() + ", " + secondCard.getNum() + ", " + thirdCard.getNum() + " in: ");
+		        
+		        
+		        if (!firstCard.isOnBack() && !secondCard.isOnBack() && !thirdCard.isOnBack() &&
+		        		firstCard.getNum() == secondCard.getNum() && secondCard.getNum() == thirdCard.getNum()) {
+		                
+		        	hand.remove(col * numRows + 2); // Third card
+		            hand.remove(col * numRows + 1);     // Second card
+		            hand.remove(col * numRows);                 // First card
+		                
+		            //System.out.println("Removed all cards in column " + col + " (number " + firstCard.getNum() + ")");
+		            noMatches = false;
+		            break;
+		        } else {
+		        	noMatches = true;
+		        }
+		    }
+	    }
 	}
 	
 	public void cardClicked(Card c) { // do stuff based off game state, and card clicked
@@ -82,8 +112,9 @@ public class Hand {
 
         // Assign coordinates to each card in the hand with spacing
         for (int i = 0; i < hand.size(); i++) {
-            int row = i / 4;
-            int col = i % 4;
+            int row = i % 3;
+            int col = i / 3;
+            //System.out.println(row + ", " + col + " for " + hand.get(i).getNum());
             int cardX = (int) (x + col * (cardWidth + cardSpacingX));
             int cardY = (int) (y + row * (cardHeight + cardSpacingY));
             hand.get(i).setCoords(cardX, cardY);
@@ -150,7 +181,9 @@ public class Hand {
 			if (c.getNum() == card.getNum() && c.getX() == card.getX() && c.getY() == card.getY()) {
 				//System.out.println("Found the card, replacing (" + c.getNum() + ")");
 				newCard.setCoords(card.getX(), card.getY());
-				newCard.flipCard();
+				if (newCard.isOnBack()) {
+					newCard.flipCard();
+				}
 				hand.set(i, newCard);
 			}
 		}
