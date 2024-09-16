@@ -196,4 +196,12 @@ public class Hand {
 		}
 		return v;
 	}
+	
+	public void flipAllCards() {
+		for (int i = 0; i < hand.size(); i++) {
+			if (hand.get(i).isOnBack()) {
+				hand.get(i).flipCard();
+			}
+		}
+	}
 }

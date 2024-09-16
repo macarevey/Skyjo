@@ -28,11 +28,22 @@ public class DisplayCards extends JFrame {
 		//setSize(WIDTH, HEIGHT);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		m = new MouseListenerPanel(hands, deck, discard, playerNum, s);
+		m = new MouseListenerPanel(hands, deck, discard, playerNum, s, 0);
 		add(m);
 		//setSize(1800, 900);
 		setExtendedState(JFrame.MAXIMIZED_BOTH); 
 		setVisible(true);
+	}
+	
+	public void newRound(ArrayList<Hand> h, Deck d, Discard disc, int p, ArrayList<Integer> s, int playerTurn) {
+		hands = h;
+		deck = d;
+		discard = disc;
+		playerNum = p;
+		
+		this.getContentPane().removeAll();
+		m = new MouseListenerPanel(hands, deck, discard, playerNum, s, playerTurn);
+		add(m);
 	}
 	
 	public MouseListenerPanel getMouseListener() {

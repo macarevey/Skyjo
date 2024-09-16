@@ -37,6 +37,10 @@ public class Robot {
 		gameState = g;
 	}
 	
+	public String getName() {
+		return name;
+	}
+	
 	public void updateInfo(String g, Hand h, Deck de, Discard di, JPanel j) {
 		gameState = g;
 		hand = h;
@@ -50,19 +54,19 @@ public class Robot {
 	    int discardSize = discard.getPile().size();
 	    Card deckCard = null;
 	    Card discardCard = null;
+	    System.out.println("Game state: " + gameState);
 	    try {
 	        deckCard = deck.getDeck().get(deckSize-1);
 	        discardCard = discard.getPile().get(discardSize-1);
 	    } catch (Exception e) {}
 		
 			if (gameState.equals("Normal")) {
-				System.out.println("Normal");
+				//System.out.println("Normal");
 				if (discardCard != null && discardCard.getNum() <= 2) { // Auto pull from discard
 					gameState = "Discard";
 		    		Card cardPulled = discard.takeCard();
 		    		cardPulled.setCoords(cardPulled.getX(), cardPulled.getY() + cardPulled.getHeight() + 5);
 		    		discardCardPulled = cardPulled;
-		    		gamePanel.repaint();
 				} else if (discardCard != null && discardCard.getNum() <= 6) {
 					int chance = (int)(Math.random() * 11) + 1;
 					if (chance >= 3) { // Pull from the deck
@@ -83,7 +87,7 @@ public class Robot {
 		    		deckCardPulled = cardPulled;
 				}
 			} else if (gameState.equals("Deck")) {
-				System.out.println("Deck");
+				//System.out.println("Deck");
 				int highestCardIndex = 0;
 				int highestCard = -2;
 				
@@ -149,7 +153,7 @@ public class Robot {
 					}
 				}
 			} else if (gameState.equals("FlipCard")) {
-				System.out.println("FlipCard");
+				//System.out.println("FlipCard");
 				ArrayList<Integer> indexes = new ArrayList<Integer>();
 				for (int i = 0; i < hand.getHand().size(); i++) {
 					Card c = hand.getHand().get(i);
@@ -162,9 +166,10 @@ public class Robot {
 				Card cardToFlip = hand.getHand().get(indexes.get(num));
 				
 				cardToFlip.flipCard();
+				gameState = "Normal";
 				doneWithTurn = true;
 			} else if (gameState.equals("Discard")) {
-				System.out.println("Discard");
+				//System.out.println("Discard");
 				int highestCardIndex = 0;
 				int highestCard = -2;
 				
@@ -239,5 +244,6 @@ public class Robot {
 				}
 			}
 		}
+		gamePanel.repaint();
 	}
 }

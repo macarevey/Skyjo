@@ -25,6 +25,13 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
 	private Card discardCardPulled;
 	private boolean newRound;
 	private ArrayList<Integer> scores;
+	
+	private boolean lastTurns;
+	private int lastTurnIndex;
+	
+	private boolean gameEnd;
+	private String winner;
+	
 	// Game state Methods
 	public void switchTurn() {
 		playerTurn++;
@@ -35,10 +42,45 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
 	}
 	
 	public ArrayList<Integer> calcScores() {
-		for (int i = 0; i < players; i++) {
-			scores.set(i, ((int)(Math.random() * 100)) + scores.get(i));
+		for (int i = 0; i < hands.size(); i++) {
+			int score = 0;
+			for (int j = 0; j < hands.get(i).getHand().size(); j++) {
+				score += hands.get(i).getHand().get(j).getNum();
+			}
+			scores.set(i, score + scores.get(i));
 		}
 		return scores;
+	}
+	
+	public void checkFlipCards() {
+		for (int i = 0; i < hands.size(); i++) {
+			if (hands.get(i).allFlipped()) {
+				lastTurns = true;
+				lastTurnIndex = i;
+				System.out.println("lastTurns = true, index is " + lastTurnIndex);
+			}
+		}
+	}
+	
+	public boolean getIsLastTurns() {
+		return lastTurns;
+	}
+	
+	public int getLastTurnIndex() {
+		return lastTurnIndex;
+	}
+	
+	public int getPlayerTurn() {
+		return playerTurn;
+	}
+	
+	public void makeGameEnd(String w) {
+		gameEnd = true;
+		winner = w;
+	}
+	
+	public Robot[] getRobots() {
+		return robots;
 	}
 	
 	// Math for hands position
@@ -78,24 +120,23 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
 	        Timer timer = new Timer(1000, new ActionListener() {
 	            @Override
 	            public void actionPerformed(ActionEvent e) {
+	            	//System.out.println("Timer");
 	                boolean doneWithTurn = false;
 
 	                if (playerTurn != 0) {
-	                    robots[currentRobotIndex].updateInfo(robots[currentRobotIndex].getGameState(), 
-	                                                        hands.get(playerTurn), deck, discard, MouseListenerPanel.this);
+	                    robots[currentRobotIndex].updateInfo(robots[currentRobotIndex].getGameState(), hands.get(playerTurn), deck, discard, MouseListenerPanel.this);
 	                    robots[currentRobotIndex].makeDecision();
 	                    doneWithTurn = robots[currentRobotIndex].getDoneWithTurn();
 
 	                    if (doneWithTurn) {
 	                        switchTurn();
-	                        repaint();
 	                        robots[currentRobotIndex].setGameState("Normal");
 	                    }
-	                    
-	                    repaint();
 	                }
 
 	                if (doneWithTurn || playerTurn == 0) {
+	                	robots[currentRobotIndex].setDoneWithTurn(false);
+	                	checkFlipCards();
 	                    ((Timer) e.getSource()).stop();
 	                }
 	            }
@@ -107,7 +148,7 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
 	}
 
 	
-	public MouseListenerPanel(ArrayList<Hand> h, Deck d, Discard disc, int p, ArrayList<Integer> s) {
+	public MouseListenerPanel(ArrayList<Hand> h, Deck d, Discard disc, int p, ArrayList<Integer> s, int plyrTurn) {
 		addMouseListener(this);
 		hands = h;
 		deck = d;
@@ -118,89 +159,94 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
 		newRound = false;
 		scores = s;
 		robots = new Robot[players-1];
+		playerTurn = plyrTurn;
+		System.out.println("Starting player turn in " + plyrTurn);
 		for (int i = 0; i < players-1; i++) {
 			robots[i] = new Robot("Robot " + (i+1));
 		}
 		doEllipse();
+		if (playerTurn != 0) {
+			runRobotTurn();
+		}
 	}
 	
 	@Override
 	public void paint(Graphics g) {
 	    super.paintComponent(g);
-	    doEllipse();
-	    //double x = (getWidth() - ellipseW) / 2;
-	    //double y = (getHeight() - ellipseH) / 2;
-	    g.setColor(Color.blue);
-	    //g.drawOval((int)x, (int)y, (int)ellipseW, (int)ellipseH);
-	    
-	    // Drawing scores
-	    int scoresX = getWidth() / 40;
-	    int scoresY = getHeight() / 20;
-	    for (int i = 0; i < scores.size(); i++) {
-	        int score = scores.get(i);
-	        if (i == 0) {
-	            g.drawString("Player:", scoresX, scoresY);
-	            g.drawString("" + score, scoresX*2, scoresY);
-	        } else {
-	            g.drawString("Bot " + i + ":", scoresX, i*scoresY+scoresY);
-	            g.drawString("" + score, scoresX*2, i*scoresY+scoresY);
-	        }
-	    }
-	    
-	    // Drawing hands
-	    int handCount = 1;
-	    for (Hand h : hands) {
-	        if (h.getIsPlayer()) {
-	            g.drawString("Player", (int)h.getX(), (int)h.getY());
-	        } else {
-	            g.drawString("Bot " + handCount, (int)h.getX(), (int)h.getY());
-	            handCount++;
-	        }
-
-	        for (Card c : h.getHand()) {
-	            if (c.isOnBack()) {
-	                g.drawImage(c.getBack(), c.getX(), c.getY(), c.getWidth(), c.getHeight(), null);
-	            } else {
-	                g.drawImage(c.getImage(), c.getX(), c.getY(), c.getWidth(), c.getHeight(), null);
-	            }
-	        }
-	    }
-
-	    // Drawing deck, discard piles
-	    int deckSize = deck.getDeck().size();
-	    int discardSize = discard.getPile().size();
-	    Card deckCard = null;
-	    Card discardCard = null;
-	    try {
-	        deckCard = deck.getDeck().get(deckSize-1);
-	        discardCard = discard.getPile().get(discardSize-1);
-	    } catch (Exception e) {}
-
-	    if (discardCard != null && discardCard.isOnBack()) {
-	        g.drawImage(discardCard.getBack(), discard.getX(), discard.getY(), discardCard.getWidth(), discardCard.getHeight(), null);
-	    } else if (discardCard != null) {
-	        g.drawImage(discardCard.getImage(), discard.getX(), discard.getY(), discardCard.getWidth(), discardCard.getHeight(), null);
-	    }
-
-	    if (deckCard != null && deckCard.isOnBack()) {
-	        g.drawImage(deckCard.getBack(), deck.getX(), deck.getY(), deckCard.getWidth(), deckCard.getHeight(), null);
-	    } else if (deckCard != null) {
-	        g.drawImage(deckCard.getImage(), deck.getX(), deck.getY(), deckCard.getWidth(), deckCard.getHeight(), null);
-	    }
-
-	    if (deckCardPulled != null) {
-	        g.drawImage(deckCardPulled.getImage(), deckCardPulled.getX(), deckCardPulled.getY(), deckCardPulled.getWidth(), deckCardPulled.getHeight(), null);
-	    }
-
-	    if (discardCardPulled != null) {
-	        g.drawImage(discardCardPulled.getImage(), discardCardPulled.getX(), discardCardPulled.getY(), discardCardPulled.getWidth(), discardCardPulled.getHeight(), null);
-	    }
+	    if (!gameEnd) {
+		    doEllipse();
+		    //double x = (getWidth() - ellipseW) / 2;
+		    //double y = (getHeight() - ellipseH) / 2;
+		    g.setColor(Color.blue);
+		    //g.drawOval((int)x, (int)y, (int)ellipseW, (int)ellipseH);
+		    
+		    // Drawing scores
+		    int scoresX = getWidth() / 40;
+		    int scoresY = getHeight() / 20;
+		    for (int i = 0; i < scores.size(); i++) {
+		        int score = scores.get(i);
+		        if (i == 0) {
+		            g.drawString("Player:", scoresX, scoresY);
+		            g.drawString("" + score, scoresX*2, scoresY);
+		        } else {
+		            g.drawString("Bot " + i + ":", scoresX, i*scoresY+scoresY);
+		            g.drawString("" + score, scoresX*2, i*scoresY+scoresY);
+		        }
+		    }
+		    
+		    // Drawing hands
+		    int handCount = 1;
+		    for (Hand h : hands) {
+		        if (h.getIsPlayer()) {
+		            g.drawString("Player", (int)h.getX(), (int)h.getY());
+		        } else {
+		            g.drawString("Bot " + handCount, (int)h.getX(), (int)h.getY());
+		            handCount++;
+		        }
+	
+		        for (Card c : h.getHand()) {
+		            if (c.isOnBack()) {
+		                g.drawImage(c.getBack(), c.getX(), c.getY(), c.getWidth(), c.getHeight(), null);
+		            } else {
+		                g.drawImage(c.getImage(), c.getX(), c.getY(), c.getWidth(), c.getHeight(), null);
+		            }
+		        }
+		    }
+	
+		    // Drawing deck, discard piles
+		    int deckSize = deck.getDeck().size();
+		    int discardSize = discard.getPile().size();
+		    Card deckCard = null;
+		    Card discardCard = null;
+		    try {
+		        deckCard = deck.getDeck().get(deckSize-1);
+		        discardCard = discard.getPile().get(discardSize-1);
+		    } catch (Exception e) {}
+	
+		    if (discardCard != null && discardCard.isOnBack()) {
+		        g.drawImage(discardCard.getBack(), discard.getX(), discard.getY(), discardCard.getWidth(), discardCard.getHeight(), null);
+		    } else if (discardCard != null) {
+		        g.drawImage(discardCard.getImage(), discard.getX(), discard.getY(), discardCard.getWidth(), discardCard.getHeight(), null);
+		    }
+	
+		    if (deckCard != null && deckCard.isOnBack()) {
+		        g.drawImage(deckCard.getBack(), deck.getX(), deck.getY(), deckCard.getWidth(), deckCard.getHeight(), null);
+		    } else if (deckCard != null) {
+		        g.drawImage(deckCard.getImage(), deck.getX(), deck.getY(), deckCard.getWidth(), deckCard.getHeight(), null);
+		    }
+	
+		    if (deckCardPulled != null) {
+		        g.drawImage(deckCardPulled.getImage(), deckCardPulled.getX(), deckCardPulled.getY(), deckCardPulled.getWidth(), deckCardPulled.getHeight(), null);
+		    }
+	
+		    if (discardCardPulled != null) {
+		        g.drawImage(discardCardPulled.getImage(), discardCardPulled.getX(), discardCardPulled.getY(), discardCardPulled.getWidth(), discardCardPulled.getHeight(), null);
+		    }
+		} else {
+			g.drawString((winner + " wins!"), 100, 100);
+		}
 
 	    //g.drawString(".", getWidth() / 2, getHeight() / 2);
-	}
-	
-	public boolean startNewRound() {
-		return newRound;
 	}
 	
 	public void mousePressed(MouseEvent e) {}
@@ -226,7 +272,7 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
 		    	
 		    	int discardSize = discard.getPile().size();
 		    	Card discardCard = discard.getPile().get(discardSize-1);
-		    	if (x >= discard.getX() && x <= (discardCard.getWidth() + discard.getX()) && y >= discard.getY() && y <= (discardCard.getHeight() + discard.getY())) {
+		    	if (discard.getPile().size() > 0 && x >= discard.getX() && x <= (discardCard.getWidth() + discard.getX()) && y >= discard.getY() && y <= (discardCard.getHeight() + discard.getY())) {
 		    		gameState = "Discard";
 		    		Card cardPulled = discard.takeCard();
 		    		cardPulled.setCoords(cardPulled.getX(), cardPulled.getY() + cardPulled.getHeight() + 5);
@@ -263,7 +309,7 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
 	    		Hand h = hands.get(0);
 		    	if (x >= h.getX() && x <= (h.getWidth() + h.getX()) && y >= h.getY() && y <= (h.getHeight() + h.getY())) {
 		    		for (Card c : h.getHand()) {
-		    			if (x >= c.getX() && x <= (c.getWidth() + c.getX()) && y >= c.getY() && y <= (c.getHeight() + c.getY())) {
+		    			if (c.isOnBack() && x >= c.getX() && x <= (c.getWidth() + c.getX()) && y >= c.getY() && y <= (c.getHeight() + c.getY())) {
 		    				c.flipCard();
 		    				gameState = "Normal";
 		    				cardsChanged = true;
@@ -291,6 +337,7 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
     	if (cardsChanged) {
             hands.get(0).checkColumns();
             switchTurn();
+            checkFlipCards();
             runRobotTurn();
         }
     }
