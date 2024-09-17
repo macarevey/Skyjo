@@ -57,7 +57,7 @@ public class GameRunner {
 	}
 	
 	public static void main(String[] args) {
-		players = 4;
+		players = 8;
 		scores = new ArrayList<Integer>();
 		
 		newRound();

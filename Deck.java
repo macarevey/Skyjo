@@ -85,4 +85,12 @@ public class Deck {
 	public void addCard(Card c) {
 		deck.add(c);
 	}
+	
+	public void flipCards() {
+		for (Card c : deck) {
+			if (!c.isOnBack()) {
+				c.flipCard();
+			}
+		}
+	}
 }

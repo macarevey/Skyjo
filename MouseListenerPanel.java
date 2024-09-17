@@ -10,7 +10,6 @@ import javax.swing.Timer;
 import javax.swing.JPanel;
 
 public class MouseListenerPanel extends JPanel implements MouseListener {
-	private Deck d;
 	private ArrayList<Hand> hands;
 	private Deck deck;
 	private Discard discard;
@@ -34,8 +33,14 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
 
 	// Game state Methods
 	
-	public void resetAllInfo(ArrayList<Hand> hands, Deck deck, Discard discard, ArrayList<Integer> scores) {
-		return;
+	public void checkDeck() {
+		if (deck.getDeck().size() <= 5) {
+			for (int i = 0; i < discard.getPile().size()-1; i++) {
+				deck.addCard(discard.takeCard());
+			}
+			deck.shuffleDeck();
+			deck.flipCards();
+		}
 	}
 	
 	public void getNewInfo() {
@@ -92,7 +97,7 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
 			d.shuffleDeck();
 			
 			for (int i = 0; i < players; i++) {
-				ArrayList<Card> hand = deck.getCards(12);
+				ArrayList<Card> hand = d.getCards(12);
 				//for (Card c : hand) {
 				//	c.flipCard();
 				//}
@@ -103,7 +108,7 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
 				}
 			}
 
-			Discard di = new Discard(deck.getCards(1).get(0));
+			Discard di = new Discard(d.getCards(1).get(0));
 			hands = h;
 			deck = d;
 			discard = di;
@@ -152,12 +157,10 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
 	}
 
 	public boolean getIsLastTurns() {
-		//System.out.println("lastTurns = " + lastTurns);
 		return lastTurns;
 	}
 
 	public int getLastTurnIndex() {
-		//System.out.println("lastTurnIndex = " + lastTurnIndex);
 		return lastTurnIndex;
 	}
 
@@ -229,6 +232,7 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
 	                        switchTurn();
 	                        currentRobot.setDoneWithTurn(false);
 	                        checkFlipCards();
+	                        checkDeck();
 	                    }
 	                }
 	                
@@ -356,7 +360,6 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
 			}
 
 			if (robots[i].getDiscardCardPulled() != null) {
-				System.out.println("discard card pulled");
 				Card robotDiscardCardPulled = robots[i].getDiscardCardPulled();
 				g.drawImage(robotDiscardCardPulled.getImage(), robotDiscardCardPulled.getX(),
 						robotDiscardCardPulled.getY(), robotDiscardCardPulled.getWidth(),
@@ -367,8 +370,6 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
 		if (gameEnd) {
 			g.drawString((winner + " wins!"), getWidth() / 2, getHeight() / 3);
 		}
-
-		// g.drawString(".", getWidth() / 2, getHeight() / 2);
 	}
 
 	public void mousePressed(MouseEvent e) {
@@ -387,11 +388,6 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
 		int x = e.getX();
 		int y = e.getY();
 		
-		if (x >= getWidth() - 50 && x <= getWidth() && y >= 0 && y <= 50) {
-			System.out.println(this.getPlayerTurn() + ", " + this.getLastTurnIndex() + ", " + this.getIsLastTurns());
-			repaint();
-		}
-		
 		boolean cardsChanged = false;
 		if (playerTurn == 0 && e.getButton() == e.BUTTON1 && !gameEnd) { // If it's the players turn and he left clicked
 			if (gameState.equals("Normal")) {
@@ -399,7 +395,6 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
 				Card deckCard = deck.getDeck().get(deckSize - 1);
 				if (x >= deck.getX() && x <= (deckCard.getWidth() + deck.getX()) && y >= deck.getY()
 						&& y <= (deckCard.getHeight() + deck.getY())) {
-					// System.out.println("Clicked on the deck, card is " + deckCard.getNum());
 					gameState = "Deck";
 					Card cardPulled = deck.getCards(1).get(0);
 					cardPulled.setCoords(deckCard.getX(), deckCard.getY() + deckCard.getHeight() + 5);
@@ -486,6 +481,7 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
 			hands.get(0).checkColumns();
 			checkFlipCards();
 			switchTurn();
+			checkDeck();
 			runRobotTurn();
 		}
 	}
