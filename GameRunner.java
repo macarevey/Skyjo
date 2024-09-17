@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Timer;
 
 public class GameRunner {
 	private static ArrayList<Integer> scores;
@@ -56,60 +57,10 @@ public class GameRunner {
 	}
 	
 	public static void main(String[] args) {
-		players = 3;
+		players = 4;
 		scores = new ArrayList<Integer>();
 		
 		newRound();
 		MouseListenerPanel m = display.getMouseListener();
-		while (m != null) {
-			m.repaint();
-			if (m.getIsLastTurns() && m.getLastTurnIndex() == m.getPlayerTurn()) {
-				System.out.println("Back at original index of " + m.getPlayerTurn());
-				ArrayList<Integer> newScores = m.calcScores();
-				for (int i = 0; i < newScores.size(); i++) {
-					int score = newScores.get(i);
-					scores.set(i, score + scores.get(i));
-				}
-				
-				for (int i = 0; i < hands.size(); i++) {
-					hands.get(i).flipAllCards();
-				}
-				
-				int lowestScore = Integer.MAX_VALUE;
-				int lowestScoreIndex = 0;
-				
-				for (int i = 0; i < scores.size(); i++) {
-					if (scores.get(i) < lowestScore) {
-						lowestScore = scores.get(i);
-						lowestScoreIndex = i;
-					}
-				}
-				
-				if (m.getLastTurnIndex() != lowestScoreIndex) {
-					scores.set(m.getLastTurnIndex(), (scores.get(m.getLastTurnIndex()) * 2));
-					
-				}
-				
-				boolean gameEnd = false;
-				for (int i = 0; i < scores.size(); i++) {
-					if (scores.get(i) >= 100) {
-						gameEnd = true;
-					}
-				}
-				
-				if (gameEnd) {
-					String winner = "";
-					if (lowestScoreIndex == 0) {
-						winner = "Player";
-					} else {
-						winner = m.getRobots()[lowestScoreIndex-1].getName();
-					}
-					m.makeGameEnd(winner);
-				} else {
-					roundEnd(players, m.getPlayerTurn());
-					m = display.getMouseListener();
-				}
-			}
-		}
 	}
 }

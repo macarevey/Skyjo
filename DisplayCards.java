@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.awt.Component;
 import java.util.ArrayList;
 
@@ -24,11 +25,11 @@ public class DisplayCards extends JFrame {
 		
 		setSize(1800, 900);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
-		
 		//setSize(WIDTH, HEIGHT);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		m = new MouseListenerPanel(hands, deck, discard, playerNum, s, 0);
+		//m.setBackground(new Color(111, 111, 111));
 		add(m);
 		//setSize(1800, 900);
 		setExtendedState(JFrame.MAXIMIZED_BOTH); 
@@ -41,9 +42,16 @@ public class DisplayCards extends JFrame {
 		discard = disc;
 		playerNum = p;
 		
-		this.getContentPane().removeAll();
+		System.out.println("Before removing MouseListenerPanel: " + m);
+		this.removeAll();
+		this.revalidate();
+		this.repaint();
+		System.out.println("After removing MouseListenerPanel: " + m);
 		m = new MouseListenerPanel(hands, deck, discard, playerNum, s, playerTurn);
 		add(m);
+		this.revalidate();
+		this.repaint();
+		System.out.println("After adding new MouseListenerPanel: " + m);
 	}
 	
 	public MouseListenerPanel getMouseListener() {

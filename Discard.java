@@ -20,7 +20,6 @@ public class Discard {
 		if (c.isOnBack()) {
 			c.flipCard();
 		}
-		c.setCoords(x, y);
 		discardPile.add(c);
 	}
 	
