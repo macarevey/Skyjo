@@ -143,7 +143,7 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
 
 	public void checkFlipCards() {
 		if (lastTurns == false && lastTurnIndex == -1) {
-			System.out.println("Checking for last turn");
+			System.out.println("Checking for last turn with index " + playerTurn);
 			for (int i = 0; i < hands.size(); i++) {
 				if (hands.get(i).allFlipped()) {
 					lastTurns = true;
@@ -229,9 +229,9 @@ public class MouseListenerPanel extends JPanel implements MouseListener {
 
 	                    if (doneWithTurn) {
 	                        hands.get(currentRobotIndex + 1).checkColumns();
+	                        checkFlipCards();
 	                        switchTurn();
 	                        currentRobot.setDoneWithTurn(false);
-	                        checkFlipCards();
 	                        checkDeck();
 	                    }
 	                }
